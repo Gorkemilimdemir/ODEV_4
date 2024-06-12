@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayı Sıralama ve Rastgele Seçim</title>
+    <style>
+        #numbers {
+            display: flex;
+            flex-wrap: wrap;
+            width: 200px;
+        }
+        .number {
+            width: 20px;
+            display: inline-block;
+        }
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <button id="sortButton" onclick="sortNumbers()">Sırala</button>
+    <button id="randomButton" onclick="highlightRandomNumber()" disabled>Rastgele Sayı Seç</button>
+    <div id="numbers"></div>
+
+    <script>
+        
+        let numbersArray = [];
+        for (let i = 1; i <= 99; i++) {
+            numbersArray.push(i);
+        }
+
+       
+        const numbersDiv = document.getElementById('numbers');
+        numbersArray.forEach(number => {
+            const span = document.createElement('span');
+            span.classList.add('number');
+            span.textContent = number;
+            numbersDiv.appendChild(span);
+        });
+
+       
+        function sortNumbers() {
+            numbersDiv.innerHTML = '';
+            numbersArray.sort((a, b) => a - b).forEach((number, index) => {
+                const span = document.createElement('span');
+                span.classList.add('number');
+                span.textContent = number;
+                numbersDiv.appendChild(span);
+
+              
+                if ((index + 1) % 10 === 0) {
+                    numbersDiv.appendChild(document.createElement('br'));
+                }
+            });
+
+            document.getElementById('sortButton').disabled = true;
+            document.getElementById('randomButton').disabled = false;
+        }
+
+        
+        function highlightRandomNumber() {
+            const allSpans = document.querySelectorAll('.number');
+            const randomIndex = Math.floor(Math.random() * allSpans.length);
+            const randomSpan = allSpans[randomIndex];
+
+            randomSpan.classList.add('highlight');
+        }
+    </script>
+</body>
+</html>

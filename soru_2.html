@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayısal Loto Oyunu</title>
+    <style>
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        .result-container {
+            margin-top: 30px;
+        }
+        .error-message {
+            color: red;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sayısal Loto Oyunu</h1>
+    <div id="inputs" class="input-container">
+        <input type="number" class="guess-input" min="1" max="49">
+        <input type="number" class="guess-input" min="1" max="49">
+        <input type="number" class="guess-input" min="1" max="49">
+        <input type="number" class="guess-input" min="1" max="49">
+        <input type="number" class="guess-input" min="1" max="49">
+        <input type="number" class="guess-input" min="1" max="49">
+    </div>
+    <button id="submitGuesses" onclick="submitGuesses()">Tahmin Gir</button>
+    <button id="drawNumbers" onclick="drawNumbers()" disabled>Kurayı Çek</button>
+    <div id="errorMessage" class="error-message hidden"></div>
+    <div class="result-container">
+        <div id="sortedGuesses"></div>
+        <div id="lotteryNumbers"></div>
+        <div id="matchedNumbers"></div>
+        <div id="matchCount"></div>
+    </div>
+
+    <script>
+        const guessInputs = document.querySelectorAll('.guess-input');
+        const errorMessage = document.getElementById('errorMessage');
+        const submitGuessesButton = document.getElementById('submitGuesses');
+        const drawNumbersButton = document.getElementById('drawNumbers');
+        const sortedGuessesDiv = document.getElementById('sortedGuesses');
+        const lotteryNumbersDiv = document.getElementById('lotteryNumbers');
+        const matchedNumbersDiv = document.getElementById('matchedNumbers');
+        const matchCountDiv = document.getElementById('matchCount');
+
+        function submitGuesses() {
+            errorMessage.classList.add('hidden');
+            const guesses = Array.from(guessInputs).map(input => parseInt(input.value));
+
+            if (guesses.some(guess => isNaN(guess) || guess < 1 || guess > 49)) {
+                errorMessage.textContent = '1-49 sayıları arasında bir sayı girmelisiniz.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            const uniqueGuesses = new Set(guesses);
+            if (uniqueGuesses.size !== guesses.length) {
+                errorMessage.textContent = 'Aynı tahmin bir kez girilebilir.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            const sortedGuesses = Array.from(uniqueGuesses).sort((a, b) => a - b);
+            guessInputs.forEach((input, index) => {
+                input.value = sortedGuesses[index];
+            });
+
+            submitGuessesButton.disabled = true;
+            drawNumbersButton.disabled = false;
+        }
+
+        function drawNumbers() {
+            const lotteryNumbers = [];
+            while (lotteryNumbers.length < 6) {
+                const num = Math.floor(Math.random() * 49) + 1;
+                if (!lotteryNumbers.includes(num)) {
+                    lotteryNumbers.push(num);
+                }
+            }
+            lotteryNumbers.sort((a, b) => a - b);
+
+            const guesses = Array.from(guessInputs).map(input => parseInt(input.value));
+            const matchedNumbers = guesses.filter(guess => lotteryNumbers.includes(guess));
+
+            sortedGuessesDiv.textContent = 'Tahminler: ' + guesses.join(', ');
+            lotteryNumbersDiv.textContent = 'Loto Numaraları: ' + lotteryNumbers.join(', ');
+            matchedNumbersDiv.textContent = 'Bilen Sayılar: ' + matchedNumbers.join(', ');
+            matchCountDiv.textContent = 'Bilinme Adedi: ' + matchedNumbers.length;
+        }
+
+        guessInputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                const value = parseInt(input.value);
+                if (!isNaN(value)) {
+                    let duplicate = false;
+                    guessInputs.forEach(otherInput => {
+                        if (otherInput !== input && parseInt(otherInput.value) === value) {
+                            otherInput.value = '';
+                            duplicate = true;
+                        }
+                    });
+                    if (duplicate) {
+                        errorMessage.textContent = 'Aynı tahmin bir kez girilebilir.';
+                        errorMessage.classList.remove('hidden');
+                    } else {
+                        errorMessage.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
